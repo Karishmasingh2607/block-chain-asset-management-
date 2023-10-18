@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>College Asset Management</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+</head>
+
+<body ng-app="CollegeAssetApp">
+  <div class="container" ng-controller="StudentController">
+    <h1>College Asset Management</h1>
+
+    <h2>Add Student</h2>
+    <form>
+      <input type="text" ng-model="studentId" placeholder="Student ID">
+      <input type="text" ng-model="name" placeholder="Student Name">
+      <input type="password" ng-model="privateKey" placeholder="Private Key">
+      <button type="button" ng-click="addStudent()" title="Add Student">Add Student</button>
+    </form>
+
+    <h2>Add Computer</h2>
+    <form>
+      <input type="text" ng-model="computerId" placeholder="Computer ID">
+      <input type="text" ng-model="computerName" placeholder="Computer Name">
+      <button type="button" ng-click="addComputer()" title="Add Computer">Add Computer</button>
+    </form>
+
+    <h2>Create Transaction</h2>
+    <form>
+      <input type="text" ng-model="studentIdTx" placeholder="Student ID">
+      <input type="text" ng-model="computerIdTx" placeholder="Computer ID">
+      <select ng-model="actionTx">
+        <option value="Borrow">Borrow</option>
+        <option value="Return">Return</option>
+      </select>
+      <input type="password" ng-model="privateKeyTx" placeholder="Private Key">
+      <button type="button" ng-click="createTransaction()" title="Create Transaction">Create Transaction</button>
+    </form>
+
+    <button type="button" ng-click="minePendingTransactions()" title="Mine Pending Transactions">Mine Pending Transactions</button>
+
+    <h2>Pending Transactions</h2>
+    <ul>
+      <li ng-repeat="transaction in pendingTransactions">{{ transaction.id }} - {{ transaction.studentId }} - {{ transaction.computerId }} - {{ transaction.action }}</li>
+    </ul>
+
+    <h2>Blockchain Data</h2>
+    <ul>
+      <li ng-repeat="block in blockchainData">{{ 'Block ' + block.index + ': ' + block.timestamp + ' - ' + block.hash }}
+        <ul>
+          <li ng-repeat="transaction in block.transactions">{{ transaction.id }} - {{ transaction.studentId }} - {{ transaction.computerId }} - {{ transaction.action }}</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <script>
+    var app = angular.module('CollegeAssetApp', []);
+
+    app.controller('StudentController', function ($scope, $http) {
+      $scope.studentId = '';
+      $scope.name = '';
+      $scope.privateKey = '';
+      $scope.computerId = '';
+      $scope.computerName = '';
+      $scope.studentIdTx = '';
+      $scope.computerIdTx = '';
+      $scope.actionTx = 'Borrow';
+      $scope.privateKeyTx = '';
+      $scope.pendingTransactions = [];
+      $scope.blockchainData = [];
+
+      $scope.addStudent = function () {
+        var studentData = {
+          studentId: $scope.studentId,
+          name: $scope.name,
+          privateKey: $scope.privateKey
+        };
+
+        var config = {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        };
+
+        $http.post('/add-student', studentData, config)
+          .then(function (response) {
+            if (response.data.success) {
+              $scope.successMessage = 'Student added successfully.';
+              $scope.errorMessage = '';
+            } else {
+              $scope.successMessage = '';
+              $scope.errorMessage = 'Failed to add student.';
+            }
+          })
+          .catch(function (error) {
+            $scope.successMessage = '';
+            $scope.errorMessage = 'An error occurred while adding the student.';
+          });
+      };
+
+      $scope.addComputer = function () {
+        var computerData = {
+          computerId: $scope.computerId,
+          name: $scope.computerName
+        };
+
+        var config = {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        };
+
+        $http.post('/add-computer', computerData, config)
+          .then(function (response) {
+            if (response.data.success) {
+              $scope.successMessage = 'Computer added successfully.';
+              $scope.errorMessage = '';
+            } else {
+              $scope.successMessage = '';
+              $scope.errorMessage = 'Failed to add computer.';
+            }
+          })
+          .catch(function (error) {
+            $scope.successMessage = '';
+            $scope.errorMessage = 'An error occurred while adding the computer.';
+          });
+      };
+
+      $scope.createTransaction = function () {
+        var transactionData = {
+          studentId: $scope.studentIdTx,
+          computerId: $scope.computerIdTx,
+          action: $scope.actionTx,
+          privateKey: $scope.privateKeyTx
+        };
+
+        var config = {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        };
+
+        $http.post('/transaction', transactionData, config)
+          .then(function (response) {
+            if (response.data.success) {
+              $scope.successMessage = 'Transaction created successfully.';
+              $scope.errorMessage = '';
+            } else {
+              $scope.successMessage = '';
+              $scope.errorMessage = 'Failed to create transaction.';
+            }
+          })
+          .catch(function (error) {
+            $scope.successMessage = '';
+            $scope.errorMessage = 'An error occurred while creating the transaction.';
+          });
+      };
+
+      $scope.minePendingTransactions = function () {
+        var miningRewardAddress = 'YOUR_MINING_REWARD_ADDRESS'; // Replace with the mining reward address
+
+        $http.get(`/mine?miningRewardAddress=${miningRewardAddress}`)
+          .then(function (response) {
+            if (response.data.success) {
+              $scope.successMessage = 'Pending transactions mined successfully.';
+              $scope.errorMessage = '';
+              getBlockchainData();
+              getPendingTransactions();
+            } else {
+              $scope.successMessage = '';
+              $scope.errorMessage = 'Failed to mine pending transactions.';
+            }
+          })
+          .catch(function (error) {
+            $scope.successMessage = '';
+            $scope.errorMessage = 'An error occurred while mining pending transactions.';
+          });
+      };
+
+      function getPendingTransactions() {
+        $http.get('/blockchain')
+          .then(function (response) {
+            $scope.pendingTransactions = response.data.pendingTransactions;
+          })
+          .catch(function (error) {
+            console.error(error);
+          });
+      }
+
+      function getBlockchainData() {
+        $http.get('/blockchain')
+          .then(function (response) {
+            $scope.blockchainData = response.data.chain;
+          })
+          .catch(function (error) {
+            console.error(error);
+          });
+      }
+
+      // Initial data loading
+      getPendingTransactions();
+      getBlockchainData();
+    });
+  </script>
+
+  <style>
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    form label {
+      display: block;
+      text-align: left;
+    }
+
+    form input[type="text"],
+    form input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+    }
+
+    form button {
+      background-color: #007bff;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+    }
+
+    form button:hover {
+      background-color: #0056b3;
+    }
+
+    h2 {
+      margin-top: 20px;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      padding: 5px;
+    }
+
+    .success-message {
+      color: green;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .error-message {
+      color: red;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</body>
+
+</html>

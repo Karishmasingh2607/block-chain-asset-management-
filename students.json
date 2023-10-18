@@ -1,0 +1,26 @@
+{
+  "1234": {
+    "id": "1234",
+    "name": "Kajal",
+    "is_active": true,
+    "privateKey": "your_private_key2"
+  },
+  "5678": {
+    "id": "5678",
+    "name": "John",
+    "is_active": false,
+    "privateKey": "your_private_key3"
+  },
+  "9012": {
+    "id": "9012",
+    "name": "Alice",
+    "is_active": true,
+    "privateKey": "your_private_key4"
+  },
+  "3456": {
+    "id": "3456",
+    "name": "Bob",
+    "is_active": true,
+    "privateKey": "your_private_key5"
+  }
+}

@@ -1,0 +1,23 @@
+{
+    "computer1": {
+      "id": "computer1",
+      "name": "Workstation A",
+      "action": "Available"
+    },
+    "computer2": {
+      "id": "computer2",
+      "name": "Workstation B",
+      "action": "Available"
+    },
+    "computer3": {
+      "id": "computer3",
+      "name": "Laptop C",
+      "action": "Borrowed"
+    },
+    "computer4": {
+      "id": "computer4",
+      "name": "Server D",
+      "action": "Available"
+    }
+  }
+  
